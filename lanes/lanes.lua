@@ -1,14 +1,13 @@
 --- lanes
 -- breakpoint tables for creating DAW-like track automation
 -- implemenation heavily borrows from @tyleretters' sequins
-
 local L = {}
 
-NON_ZERO = 0.01
+local NON_ZERO = 0.01
 
-function L.new(t)
+function L.new(t, loop)
     -- wrap a table in a lane with defaults
-    local l = {data = t, startbeats = clock.get_beats()}
+    local l = {data = t, startbeats = clock.get_beats(), loop = loop}
     setmetatable(l, L)
     return l
 end
@@ -45,8 +44,17 @@ function L.interpolate(self, at_beats)
         if time <= at_beats then
             start_time = time
             start_level = level
-            curve_func = point[3]
-            if ix == #self.data then return level end
+            curve_func = point[3] -- will default to linear below
+            if ix == #self.data then
+                if self.loop then
+                    self.startbeats = clock.get_beats()
+                    end_time = self.data[1][1]
+                    end_level = self.data[1][2]
+                    break
+                else
+                    return level
+                end
+            end
         else
             end_time = time
             end_level = level
@@ -54,7 +62,7 @@ function L.interpolate(self, at_beats)
         end
     end
     local phase = util.linlin(start_time, end_time, 0, 1, at_beats)
-    local y = curve_func(phase)
+    local y = curve_func and curve_func(phase) or phase -- default to linear
     return util.linlin(0, 1, start_level, end_level, y)
 end
 
