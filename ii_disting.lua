@@ -487,6 +487,7 @@ function disting.multisample.chord_inversion(inversion)
 end
 
 --- Set the arpeggiator mode for each CV/gate pair.
+-- Notes received over MIDI & i2c use the mode for cv_gate_pair 3
 -- See disting.ARP_MODES table
 -- @tparam number cv_gate_pair 1 - 3
 -- @tparam number mode min: 0, max: 9, default: 0 (Up)
@@ -495,6 +496,7 @@ function disting.multisample.arp_mode(cv_gate_pair, mode)
 end
 
 --- Set the arpeggiator range.
+-- Notes received over MIDI & i2c use the range for cv_gate_pair 3
 -- When set to 1 the arpeggio is the notes in the chord.
 -- When set to 2 or 3 adds 1 or 2 additional octaves
 -- @tparam number cv_gate_pair 1 - 3
@@ -854,6 +856,7 @@ function disting.poly.chord_inversion(inversion)
 end
 
 --- Set the arpeggiator mode for each CV/gate input.
+-- Notes received over MIDI & i2c use the mode for cv_gate_pair 3
 -- See disting.ARP_MODES table
 -- @tparam number cv_gate_pair 1 - 3
 -- @tparam number mode min: 0, max: 9, default: 0 (Up)
@@ -862,6 +865,7 @@ function disting.poly.arp_mode(cv_gate_pair, mode)
 end
 
 --- Set the arpeggiator range.
+-- Notes received over MIDI & i2c use the range for cv_gate_pair 3
 -- When set to 1 the arpeggio is the notes in the chord.
 -- When set to 2 or 3 adds 1 or 2 additional octaves
 -- @tparam number cv_gate_pair 1 - 3
