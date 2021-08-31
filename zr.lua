@@ -1,5 +1,44 @@
-local ZR = {}
+--- Emulation of the Noise Engineering Zularic Repetitor pattern generator.
+-- See the manual: https://www.noiseengineering.us/shop/zularic-repetitor
+local ZR = {
+    WORLDS = {new = 'new', old = 'old'},
+    BANKS = {
+        new = {
+            motorik_1 = 'motorik_1',
+            motorik_2 = 'motorik_2',
+            motorik_3 = 'motorik_3',
+            pop_1 = 'pop_1',
+            pop_2 = 'pop_2',
+            pop_3 = 'pop_3',
+            pop_4 = 'pop_4',
+            funk_1 = 'funk_1',
+            funk_2 = 'funk_2',
+            funk_3 = 'funk_3',
+            sequence = 'sequence',
+            prime_2 = 'prime_2',
+            prime_3 = 'prime_322',
+        },
+        old = {
+            king_1 = 'king_1',
+            king_2 = 'king_2',
+            kroboto = 'kroboto',
+            vodou_1 = 'vodou_1',
+            vodou_2 = 'vodou_2',
+            vodou_3 = 'vodou_3',
+            gahu = 'gahu',
+            clave = 'clave',
+            rhumba = 'rhumba',
+            jhaptal_1 = 'jhaptal_1',
+            jhaptal_2 = 'jhaptal_2',
+            chacar = 'chacar',
+            mata = 'mata',
+            pashto = 'pashto',
+            prime_232 = 'prime_232',
+        }
+    }
+}
 
+--- See pages 5-8 of the manual: https://www.noiseengineering.us/shop/zularic-repetitor
 ZR.patterns = {
     new = {
         motorik_1 = {
@@ -181,30 +220,49 @@ ZR.patterns = {
     },
 }
 
+--- Create a new Zularic Repetitor.
+-- @tparam[opt] string 'new' or 'old', see ZR.WORLDS, default: 'new'
+-- @tparam[opt] string bank, see ZR.BANKS, default: 'motorik_1'
+-- @tparam[opt] number child which of the 4 rhythms from the bank, 1 is mother rhythm (default)
+-- @tparam[opt] number offset number of steps to offset the rhythm, resulting index always wraps
+-- @treturn table ZR
 function ZR.new(world, bank, child, offset)
     world, bank, child, offset = world or 'new', bank or 'motorik_1', child or 1, offset or 0
-    local pattern = ZR.patterns[world][bank][child]
-    local zr = {pattern=pattern, offset=offset, ix=1, length=#pattern}
+    local length = #ZR.patterns[world][bank][child]
+    local zr = {world=world, bank=bank, child=child, offset=offset, ix=1, length=length}
     setmetatable(zr, ZR)
     return zr
 end
 
-function ZR.next(self)
-    local offset_ix = (((self.ix + self.offset) - 1) % self.length) + 1
+--- Get the next step. Optionally override the world, bank, child, offset from construction.
+-- @tparam[opt] string 'new' or 'old', see ZR.WORLDS, default: 'new'
+-- @tparam[opt] string bank, see ZR.BANKS, default: 'motorik_1'
+-- @tparam[opt] number child which of the 4 rhythms from the bank, 1 is mother rhythm (default)
+-- @tparam[opt] number offset number of steps to offset the rhythm, resulting index always wraps
+-- @treturn boolean
+function ZR.next(self, world, bank, child, offset)
+    world, bank, child, offset = world or self.world, bank or self.bank, child or self.child, offset or self.offset
+    local pattern = ZR.patterns[world][bank][child]
+    local offset_ix = (((self.ix + offset) - 1) % self.length) + 1
     self.ix = (self.ix % self.length) + 1
-    return self.pattern[offset_ix]
+    return pattern[offset_ix] == 1 and true or false
 end
 
+--- Reset the pattern to the first step.
 function ZR.reset(self)
     self.ix = 1
 end
 
+--- Helper to print the pattern to the console.
 function ZR.print(self)
+    local current_ix = self.ix
     self.ix = 1
     local pattern = {}
     for step=1, 16 do
         table.insert(pattern, self())
     end
+    self.ix = current_ix
+    tab.print(pattern)
     print(table.unpack(pattern))
 end
 
@@ -213,6 +271,15 @@ ZR.__call = function(self, ...)
 end
 
 ZR.metaix = {reset=ZR.reset, print=ZR.print}
+ZR.__index = function(self, ix)
+    return ZR.metaix[ix]
+end
+
+ZR.__newindex = function(self, ix, v)
+    if ix == 'world' or ix == 'bank' or ix == 'child' or ix == 'offset' then
+        rawset(self,ix,v)
+    end
+end
 
 setmetatable(ZR, ZR)
 

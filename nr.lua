@@ -1,40 +1,51 @@
--- 1000100010001000
--- 1000100010001010
--- 1000100010010010
--- 1000100010010100
--- 1000100010100010
--- 1000100010100100
--- 1000100100010010
--- 1000100100010100
--- 1000100100100010
--- 1000100100100100
--- 1000101010001010
--- 1000101010101010
--- 1001001010010010
--- 1001001010101010
--- 1001010010101010
--- 1001010100101010
--- 1000001010000010
--- 1000001010001010
--- 1000001010010010
--- 1000001010100010
--- 1000010010000100
--- 1000010010001010
--- 1000010010010010
--- 1000010010010100
--- 1000010010100010
--- 1000010010100100
--- 1000010100001010
--- 1000010100010010
--- 1000010100010100
--- 1000010100100010
--- 1000010100100100
--- 1000010101000100
-
--- "Prime" patterns from Noise Engineering Numeric Repetitor
--- see manual https://www.noiseengineering.us/shop/numeric-repetitor
+--- Emulation of the Noise Engineering Numeric Repetitor, binary math pattern generator.
+-- see the manual https://www.noiseengineering.us/shop/numeric-repetitor
+-- @tparam[opt] number prime The prime rhythm index 1 - 32, default: 1
+-- @tparam[opt] number mask any 1s in the prime flip to 0 if the same bit in the mask is a 0, default: 0
+-- mask = 0 = no mask (default)
+-- mask = 1 = 0000111100001111
+-- mask = 2 = 1111000000000011
+-- mask = 3 = 0000000111110000
+-- any other value for mask is assumed to be a custom mask that is directly &'d with the prime
+-- @tparam[opt] number factor 0 - 16 the masked rhythm is multiplied by this number to produce variations, default: 1
+-- factor = 0 will always produce all 0's
+-- factor = 1 will apply no variation (default)n
 local NR = {}
 
+--- "Prime" patterns from Noise Engineering Numeric Repetitor.
+-- 1. 1000100010001000
+-- 2. 1000100010001010
+-- 3. 1000100010010010
+-- 4. 1000100010010100
+-- 5. 1000100010100010
+-- 6. 1000100010100100
+-- 7. 1000100100010010
+-- 8. 1000100100010100
+-- 9. 1000100100100010
+-- 10. 1000100100100100
+-- 11. 1000101010001010
+-- 12. 1000101010101010
+-- 13. 1001001010010010
+-- 14. 1001001010101010
+-- 15. 1001010010101010
+-- 16. 1001010100101010
+-- 17. 1000001010000010
+-- 18. 1000001010001010
+-- 19. 1000001010010010
+-- 20. 1000001010100010
+-- 21. 1000010010000100
+-- 22. 1000010010001010
+-- 23. 1000010010010010
+-- 24. 1000010010010100
+-- 25. 1000010010100010
+-- 26. 1000010010100100
+-- 27. 1000010100001010
+-- 28. 1000010100010010
+-- 29. 1000010100010100
+-- 30. 1000010100100010
+-- 31. 1000010100100100
+-- 32. 1000010101000100
+-- see pages 6-7 of the manual https://www.noiseengineering.us/shop/numeric-repetitor
 NR.primes = {
     0x8888, 0x888A, 0x8892, 0x8894, 0x88A2, 0x88A4, 0x8912, 0x8914, 0x8922,
     0x8924, 0x8A8A, 0x8AAA, 0x9292, 0x92AA, 0x94AA, 0x952A, 0x8282, 0x828A,
@@ -42,17 +53,18 @@ NR.primes = {
     0x8512, 0x8514, 0x8522, 0x8524, 0x8544
 }
 
---- Emulation of the Noise Engineering Numeric Repetitor, binary math pattern generator.
--- @tparam number prime The prime rhythm 1 - 32
--- @tparam number mask any 1s in the prime flip to 0 if the same bit in the mask is a 0
--- mask = 0 = no mask
+
+--- Create a new Numeric Repetitor
+-- @tparam[opt] number prime The prime rhythm index 1 - 32, default: 1
+-- @tparam[opt] number mask any 1s in the prime flip to 0 if the same bit in the mask is a 0, default: 0
+-- mask = 0 = no mask (default)
 -- mask = 1 = 0000111100001111
 -- mask = 2 = 1111000000000011
 -- mask = 3 = 0000000111110000
 -- any other value for mask is assumed to be a custom mask that is directly &'d with the prime
--- @tparam number factor 0 - 16 the masked rhythm is multiplied by this number to produce variations
--- 0 will always produce all 0's
--- 1 will apply no variation
+-- @tparam[opt] number factor 0 - 16 the masked rhythm is multiplied by this number to produce variations, default: 1
+-- factor = 0 will always produce all 0's
+-- factor = 1 will apply no variation (default)
 function NR.new(prime, mask, factor)
     prime, mask, factor = prime or 1, mask or 0, factor or 1
     local nr = {prime=prime, mask=mask, factor=factor, ix=1}
@@ -60,40 +72,57 @@ function NR.new(prime, mask, factor)
     return nr
 end
 
-function NR.next(self)
-    self.prime = self.prime % 33
-    if self.prime < 0 then self.prime = 33 + self.prime end
-    local rhythm = primes[self.prime]
-    self.factor = self.factor % 17
-    if self.factor < 0 then self.factor = 17 + self.factor end
-    if self.mask == 1 then
+--- Get the next bit from the pattern.
+-- Optionally override the prime, mask, factor set at contstruction.
+-- @tparam[opt] number prime The prime rhythm index 1 - 32, default: 1
+-- @tparam[opt] number mask any 1s in the prime flip to 0 if the same bit in the mask is a 0, default: 0
+-- mask = 0 = no mask (default)
+-- mask = 1 = 0000111100001111
+-- mask = 2 = 1111000000000011
+-- mask = 3 = 0000000111110000
+-- any other value for mask is assumed to be a custom mask that is directly &'d with the prime
+-- @tparam[opt] number factor 0 - 16 the masked rhythm is multiplied by this number to produce variations, default: 1
+-- factor = 0 will always produce all 0's
+-- factor = 1 will apply no variation (default)
+function NR.next(self, prime, mask, factor)
+    prime, mask, factor = prime or self.prime, mask or self.mask, factor or self.factor
+    prime = prime % 33
+    if prime < 1 then prime = 32 + prime end
+    local rhythm = NR.primes[prime]
+    factor = factor % 17
+    if factor < 0 then factor = 17 + factor end
+    if mask == 1 then
         rhythm = rhythm & 0x0F0F
-    elseif self.mask == 2 then
+    elseif mask == 2 then
         rhythm = rhythm & 0xF003
-    elseif self.mask == 3 then
+    elseif mask == 3 then
         rhythm = rhythm & 0x1F0
-    elseif self.mask ~= 0 then
+    elseif mask ~= 0 then
         -- Assume custom mask
-        rhythm = rhythm & self.mask
+        rhythm = rhythm & mask
     end
-    local modified = rhythm * self.factor
+    local modified = rhythm * factor
     local final = (modified & 0xFFFF) | (modified >> 16)
-    local bit_status = (final >> (15 - self.ix)) & 1
+    local bit_status = (final >> (16 - self.ix)) & 1
     self.ix = (self.ix % 16) + 1
     return bit_status
 end
 
+--- Reset the pattern to the first step.
 function NR.reset(self)
     self.ix = 1
 end
 
-
+--- Helper to print the pattern to the console.
 function NR.print(self)
+    local current_ix = self.ix
     self.ix = 1
     local pattern = {}
     for step=1, 16 do
         table.insert(pattern, self())
     end
+    self.ix = current_ix
+    tab.print(pattern)
     print(table.unpack(pattern))
 end
 
@@ -102,6 +131,15 @@ NR.__call = function(self, ...)
 end
 
 NR.metaix = {reset=NR.reset, print=NR.print}
+NR.__index = function(self, ix)
+    return NR.metaix[ix]
+end
+
+NR.__newindex = function(self, ix, v)
+    if ix == 'prime' or ix == 'mask' or ix == 'factor' then
+        rawset(self,ix,v)
+    end
+end
 
 setmetatable(NR, NR)
 

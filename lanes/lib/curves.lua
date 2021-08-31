@@ -1,11 +1,15 @@
+--- Used in the plot() helper function.
 local Graph = require "graph"
 
+--- Library of composeable functions for generating arbitrarily complex curve functions.
 local curves = {}
 
 -- local helper functions
 
+--- is v a function?
 local function callable(v) return (type(v) == 'function') and true or false end
 
+--- clamp to 0 - 1.
 local function clamp(pos)
     if pos > 1.0 then
         return 1.0
@@ -15,6 +19,7 @@ local function clamp(pos)
     return pos
 end
 
+--- apply rate and phase modulation to the given 0-1 position.
 local function calc_pos(pos, rate, phase)
     pos = clamp(pos)
     if callable(rate) then
@@ -29,6 +34,7 @@ local function calc_pos(pos, rate, phase)
     end
 end
 
+--- amplify and bias.
 local function amp_bias(value, amp, bias, pos)
     pos = pos or value
     if callable(amp) then amp = amp(pos) end
@@ -36,12 +42,14 @@ local function amp_bias(value, amp, bias, pos)
     return (value * amp) + bias
 end
 
+--- 0-1 -> radians.
 local function pos2rad(pos)
     pos = clamp(pos)
     degrees = pos * 360
     return math.rad(degrees)
 end
-
+--- Triangular distribution.
+-- https://en.wikipedia.org/wiki/Triangular_distribution
 local function tri_distribution(low, high, mode)
     r = math.random()
     if mode == nil then
