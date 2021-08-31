@@ -195,9 +195,24 @@ function ZR.next(self)
     return self.pattern[offset_ix]
 end
 
+function ZR.reset(self)
+    self.ix = 1
+end
+
+function ZR.print(self)
+    self.ix = 1
+    local pattern = {}
+    for step=1, 16 do
+        table.insert(pattern, self())
+    end
+    print(table.unpack(pattern))
+end
+
 ZR.__call = function(self, ...)
     return (self == ZR) and ZR.new(...) or ZR.next(self, ...)
 end
+
+ZR.metaix = {reset=ZR.reset, print=ZR.print}
 
 setmetatable(ZR, ZR)
 

@@ -33,8 +33,9 @@
 
 -- "Prime" patterns from Noise Engineering Numeric Repetitor
 -- see manual https://www.noiseengineering.us/shop/numeric-repetitor
+local NR = {}
 
-local table_nr = {
+NR.primes = {
     0x8888, 0x888A, 0x8892, 0x8894, 0x88A2, 0x88A4, 0x8912, 0x8914, 0x8922,
     0x8924, 0x8A8A, 0x8AAA, 0x9292, 0x92AA, 0x94AA, 0x952A, 0x8282, 0x828A,
     0x8292, 0x82A2, 0x8484, 0x848A, 0x8492, 0x8494, 0x84A2, 0x84A4, 0x850A,
@@ -52,35 +53,56 @@ local table_nr = {
 -- @tparam number factor 0 - 16 the masked rhythm is multiplied by this number to produce variations
 -- 0 will always produce all 0's
 -- 1 will apply no variation
--- @tparam number step 1 - 16 which step of the pattern to return 
-function nr(prime, mask, factor, step)
-    prime = prime % 33
-    if prime < 0 then prime = 33 + prime end
-    rhythm = table_nr[prime]
-    factor = factor % 17
-    if factor < 0 then factor = 17 + factor end
-    step = (step - 1) % 16
-    if step < 0 then step = 16 + step end
-    if mask == 1 then
+function NR.new(prime, mask, factor)
+    prime, mask, factor = prime or 1, mask or 0, factor or 1
+    local nr = {prime=prime, mask=mask, factor=factor, ix=1}
+    setmetatable(nr, NR)
+    return nr
+end
+
+function NR.next(self)
+    self.prime = self.prime % 33
+    if self.prime < 0 then self.prime = 33 + self.prime end
+    local rhythm = primes[self.prime]
+    self.factor = self.factor % 17
+    if self.factor < 0 then self.factor = 17 + self.factor end
+    if self.mask == 1 then
         rhythm = rhythm & 0x0F0F
-    elseif mask == 2 then
+    elseif self.mask == 2 then
         rhythm = rhythm & 0xF003
-    elseif mask == 3 then
+    elseif self.mask == 3 then
         rhythm = rhythm & 0x1F0
-    elseif mask ~= 0 then
+    elseif self.mask ~= 0 then
         -- Assume custom mask
-        rhythm = rhythm & mask
+        rhythm = rhythm & self.mask
     end
-    modified = rhythm * factor
-    final = (modified & 0xFFFF) | (modified >> 16)
-    bit_status = (final >> (15 - step)) & 1
+    local modified = rhythm * self.factor
+    local final = (modified & 0xFFFF) | (modified >> 16)
+    local bit_status = (final >> (15 - self.ix)) & 1
+    self.ix = (self.ix % 16) + 1
     return bit_status
 end
 
-function print_nr(prime, mask, factor)
-    pattern = {}
+function NR.reset(self)
+    self.ix = 1
+end
+
+
+function NR.print(self)
+    self.ix = 1
+    local pattern = {}
     for step=1, 16 do
-        table.insert(pattern, nr(prime, mask, factor, step))
+        table.insert(pattern, self())
     end
     print(table.unpack(pattern))
 end
+
+NR.__call = function(self, ...)
+    return (self == NR) and NR.new(...) or NR.next(self, ...)
+end
+
+NR.metaix = {reset=NR.reset, print=NR.print}
+
+setmetatable(NR, NR)
+
+return NR
