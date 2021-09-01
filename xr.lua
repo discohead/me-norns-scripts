@@ -38,24 +38,29 @@ function XR.next(self, r3)
         end
     end
 
-    local chosen_r
+    if r3_type == 'function' then
+        return r3(self.r1, self.r2)
+    end
+
+    local r1_step, r2_step = self.r1(), self.r2()
+    local chosen_step
     if r3_type == 'number' then
         if math.random() >= r3 then
-            chosen_r = self.r1
+            chosen_step = r1_step
         else
-            chosen_r = self.r2
+            chosen_step = r2_step
         end
     else
         if r3() then
-            switch = not switch
+            self.switch = not self.switch
         end
-        if switch then
-            chosen_r = self.r2
+        if self.switch then
+            chosen_step = r2_step
         else
-            chosen_r = self.r1
+            chosen_step = r1_step
         end
     end
-    return chosen_r()
+    return chosen_step
 end
 
 function XR.reset(self)

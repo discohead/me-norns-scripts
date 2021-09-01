@@ -249,8 +249,8 @@ end
 -- @treturn boolean
 function ZR.next(self, args)
     args = args or {}
-    world, bank = args.world or self.world, args.bank or self.bank
-    child, offset = args.child or self.child, args.offset or self.offset
+    local world, bank = args.world or self.world, args.bank or self.bank
+    local child, offset = args.child or self.child, args.offset or self.offset
     local pattern = ZR.patterns[world][bank][child]
     local offset_ix = (((self.ix + offset) - 1) % self.length) + 1
     self.ix = (self.ix % self.length) + 1
