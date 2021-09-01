@@ -221,27 +221,36 @@ ZR.patterns = {
 }
 
 --- Create a new Zularic Repetitor.
--- @tparam[opt] string 'new' or 'old', see ZR.WORLDS, default: 'new'
+-- @tparam[opt] string world 'new' or 'old', see ZR.WORLDS, default: 'new'
 -- @tparam[opt] string bank, see ZR.BANKS, default: 'motorik_1'
 -- @tparam[opt] number child which of the 4 rhythms from the bank, 1 is mother rhythm (default)
 -- @tparam[opt] number offset number of steps to offset the rhythm, resulting index always wraps
 -- @treturn table ZR
 function ZR.new(world, bank, child, offset)
     world, bank, child, offset = world or 'new', bank or 'motorik_1', child or 1, offset or 0
-    local length = #ZR.patterns[world][bank][child]
-    local zr = {world=world, bank=bank, child=child, offset=offset, ix=1, length=length}
+    local zr = {
+        world=world,
+        bank=bank,
+        child=child,
+        offset=offset,
+        ix=1,
+        length=#ZR.patterns[world][bank][child]
+    }
     setmetatable(zr, ZR)
     return zr
 end
 
 --- Get the next step. Optionally override the world, bank, child, offset from construction.
--- @tparam[opt] string 'new' or 'old', see ZR.WORLDS, default: 'new'
--- @tparam[opt] string bank, see ZR.BANKS, default: 'motorik_1'
--- @tparam[opt] number child which of the 4 rhythms from the bank, 1 is mother rhythm (default)
--- @tparam[opt] number offset number of steps to offset the rhythm, resulting index always wraps
+-- @tparam[opt] table args 'world', 'bank', 'child', 'offset' (all optional)
+-- @tparam[opt] string args.world 'new' or 'old', see ZR.WORLDS, default: self.world
+-- @tparam[opt] string args.bank, see ZR.BANKS, default: self.bank
+-- @tparam[opt] number args.child which of the 4 rhythms from the bank, 1 is mother rhythm, default: self.child
+-- @tparam[opt] number args.offset number of steps to offset the rhythm, resulting index always wraps, default: self.offset
 -- @treturn boolean
-function ZR.next(self, world, bank, child, offset)
-    world, bank, child, offset = world or self.world, bank or self.bank, child or self.child, offset or self.offset
+function ZR.next(self, args)
+    args = args or {}
+    world, bank = args.world or self.world, args.bank or self.bank
+    child, offset = args.child or self.child, args.offset or self.offset
     local pattern = ZR.patterns[world][bank][child]
     local offset_ix = (((self.ix + offset) - 1) % self.length) + 1
     self.ix = (self.ix % self.length) + 1
@@ -263,7 +272,6 @@ function ZR.print(self)
     end
     self.ix = current_ix
     tab.print(pattern)
-    print(table.unpack(pattern))
 end
 
 ZR.__call = function(self, ...)
@@ -271,6 +279,7 @@ ZR.__call = function(self, ...)
 end
 
 ZR.metaix = {reset=ZR.reset, print=ZR.print}
+
 ZR.__index = function(self, ix)
     return ZR.metaix[ix]
 end

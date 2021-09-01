@@ -74,18 +74,21 @@ end
 
 --- Get the next bit from the pattern.
 -- Optionally override the prime, mask, factor set at contstruction.
--- @tparam[opt] number prime The prime rhythm index 1 - 32, default: 1
--- @tparam[opt] number mask any 1s in the prime flip to 0 if the same bit in the mask is a 0, default: 0
+-- @tparam[opt] table args 'prime', 'mask', 'factor' (all are optional)
+-- @tparam[opt] number args.prime The prime rhythm index 1 - 32, default: 1
+-- @tparam[opt] number args.mask any 1s in the prime flip to 0 if the same bit in the mask is a 0, default: 0
 -- mask = 0 = no mask (default)
 -- mask = 1 = 0000111100001111
 -- mask = 2 = 1111000000000011
 -- mask = 3 = 0000000111110000
 -- any other value for mask is assumed to be a custom mask that is directly &'d with the prime
--- @tparam[opt] number factor 0 - 16 the masked rhythm is multiplied by this number to produce variations, default: 1
+-- @tparam[opt] number args.factor 0 - 16 the masked rhythm is multiplied by this number to produce variations, default: 1
 -- factor = 0 will always produce all 0's
 -- factor = 1 will apply no variation (default)
-function NR.next(self, prime, mask, factor)
-    prime, mask, factor = prime or self.prime, mask or self.mask, factor or self.factor
+function NR.next(self, args)
+    args = args or {}
+    prime, mask = args.prime or self.prime, args.mask or self.mask
+    factor = args.factor or self.factor
     prime = prime % 33
     if prime < 1 then prime = 32 + prime end
     local rhythm = NR.primes[prime]
@@ -105,7 +108,7 @@ function NR.next(self, prime, mask, factor)
     local final = (modified & 0xFFFF) | (modified >> 16)
     local bit_status = (final >> (16 - self.ix)) & 1
     self.ix = (self.ix % 16) + 1
-    return bit_status
+    return bit_status == 1 and true or false
 end
 
 --- Reset the pattern to the first step.
@@ -123,7 +126,6 @@ function NR.print(self)
     end
     self.ix = current_ix
     tab.print(pattern)
-    print(table.unpack(pattern))
 end
 
 NR.__call = function(self, ...)
