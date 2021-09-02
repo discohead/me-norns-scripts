@@ -353,10 +353,10 @@ end
 -- @tparam number num_samples the number of samples from one phase cycle of the curve
 -- @tparam[opt] function map_func optional function to be applied to each sample
 -- @treturn table a table of length num_samples
-function curves.to_table(f, num_samples, map_func)
+function curves.to_table(self, num_samples, map_func)
     local samples = {}
     for i = 1, num_samples do
-        local sample = f((i-1)/num_samples)
+        local sample = self((i-1)/num_samples)
         if map_func then
             sample = map_func(sample)
         end
@@ -368,13 +368,13 @@ end
 --- Helper function to get a full-screen Graph object representing one complete phase cycle of the curve
 -- @tparam function f a function returned from one of the curve generators
 -- @treturn Graph a Graph object, call :redraw() on the return value in your script's redraw()
-function curves.plot(f)
-    local point_vals = curves.to_table(f, 128)
-    local signal_graph = Graph.new(0, 127, "lin", 0, 127/128, "lin", "line_and_point",
+function curves.plot(self)
+    local point_vals = curves.to_table(self, 128)
+    local curve_graph = Graph.new(0, 127, "lin", 0, 127/128, "lin", "line_and_point",
                              false, false)
-    signal_graph:set_position_and_size(0, 0, 128, 64)
-    for i = 1, 128 do signal_graph:add_point(i, point_vals[i]) end
-    return signal_graph
+    curve_graph:set_position_and_size(0, 0, 128, 64)
+    for i = 1, 128 do curve_graph:add_point(i, point_vals[i]) end
+    return curve_graph
 end
 
 return curves
