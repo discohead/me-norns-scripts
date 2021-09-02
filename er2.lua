@@ -1,5 +1,8 @@
+--- Euclidean Rhythm Generator.
 local ER = {}
 
+--- Local helper for calculating the euclidean rhythm.
+-- taken from lib/er.lua
 local function gen(pulses, steps, rotation)
     rotation = rotation or 0
     -- results array, intially all zero
@@ -25,7 +28,11 @@ local function gen(pulses, steps, rotation)
     return r
 end
 
-
+--- Create a new Euclidean Rhythm Generator.
+-- @tparam number pulses number of triggers in the pattern
+-- @tparam number steps length of the pattern
+-- @tparam number rotation shift or rotation of the pattern
+-- @tparam table new ER instance
 function ER.new(pulses, steps, rotation)
     local er = {
         pulses = pulses or 4,
@@ -38,12 +45,12 @@ function ER.new(pulses, steps, rotation)
     return er
 end
 
+--- Get the next step from this Euclidean pattern.
 -- @tparam[opt] table args : 'pulses', 'steps', 'roatation' (all optional)
 -- @tparam[opt] number args.pulses : number of pulses, default: self.pulses
 -- @tparam[opt] number args.steps : total number of steps, default: self.steps
 -- @tparam[opt] number args.rotation : shift amount, default: self.rotation
--- @tparam
--- @treturn table
+-- @treturn boolean
 function ER.next(self, args)
     local dirty
     if args then

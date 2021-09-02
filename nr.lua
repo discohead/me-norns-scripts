@@ -65,6 +65,7 @@ NR.primes = {
 -- @tparam[opt] number factor 0 - 16 the masked rhythm is multiplied by this number to produce variations, default: 1
 -- factor = 0 will always produce all 0's
 -- factor = 1 will apply no variation (default)
+-- @treturn table new NR instance
 function NR.new(prime, mask, factor)
     prime, mask, factor = prime or 1, mask or 0, factor or 1
     local nr = {prime=prime, mask=mask, factor=factor, ix=1}
@@ -85,6 +86,7 @@ end
 -- @tparam[opt] number args.factor 0 - 16 the masked rhythm is multiplied by this number to produce variations, default: 1
 -- factor = 0 will always produce all 0's
 -- factor = 1 will apply no variation (default)
+-- @treturn boolean
 function NR.next(self, args)
     args = args or {}
     prime, mask = args.prime or self.prime, args.mask or self.mask

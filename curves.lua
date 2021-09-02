@@ -45,13 +45,13 @@ end
 --- 0-1 -> radians.
 local function pos2rad(pos)
     pos = clamp(pos)
-    degrees = pos * 360
+    local degrees = pos * 360
     return math.rad(degrees)
 end
 --- Triangular distribution.
 -- https://en.wikipedia.org/wiki/Triangular_distribution
 local function tri_distribution(low, high, mode)
-    r = math.random()
+    local r = math.random()
     if mode == nil then
         mode = 0.5
     else
@@ -66,6 +66,16 @@ local function tri_distribution(low, high, mode)
     return low + (high - low) * math.sqrt(r * mode)
 end
 
+local default_vals = {a = 1, r = 1, p = 0, b = 0}
+local function init_args(args)
+    args = args or {}
+    for k, v in pairs(default_vals) do
+        args[k] = args[k] or v
+    end
+    return args
+end
+
+
 -- composeable curve function generators
 
 --- Constant value function that can optionally be modulated.
@@ -78,9 +88,9 @@ end
 -- @tparam number|function args.b bias, added at final stage of calculation, like add in SuperCollider, defaults to 0
 -- @treturn function a function that calculates y values of the curve given a 0-1 phase argument
 function curves.const(args)
+    args = init_args(args)
     args.v = args.v or 1
-    args.a, args.r, args.p, args.b = args.a or 1, args.r or 1, args.p or 0, args.b or 0
-    function f(pos)
+    local function f(pos)
         if args.m then
             pos = calc_pos(pos, args.r, args.p)
             if callable(args.v) then args.v = args.v(pos) end
@@ -102,9 +112,9 @@ end
 -- @tparam number|function args.b bias, added at final stage of calculation, like add in SuperCollider, defaults to 0
 -- @treturn function a function that calculates the random value given a 0-1 phase argument
 function curves.noise(args)
+    args = init_args(args)
     args.lo, args.hi = args.lo or 0, args.hi or 1
-    args.a, args.r, args.p, args.b = args.a or 1, args.r or 1, args.p or 0, args.b or 0
-    function f(pos)
+    local function f(pos)
         pos = calc_pos(pos, args.r, args.p)
         if callable(args.lo) then args.lo = args.lo(pos) end
         if callable(args.hi) then args.hi = args.hi(pos) end
@@ -130,8 +140,8 @@ end
 -- @tparam number|function args.b bias, added at final stage of calculation, like add in SuperCollider, defaults to 0
 -- @treturn function a function that calculates y values of the curve given a 0-1 phase argument
 function curves.ramp(args)
-    args.a, args.r, args.p, args.b = args.a or 1, args.r or 1, args.p or 0, args.b or 0
-    function f(pos)
+    args = init_args(args)
+    local function f(pos)
         pos = calc_pos(pos, args.r, args.p)
         return amp_bias(pos, args.a, args.b)
     end
@@ -146,8 +156,8 @@ end
 -- @tparam number|function args.b bias, added at final stage of calculation, like add in SuperCollider, defaults to 0
 -- @treturn function a function that calculates y values of the curve given a 0-1 phase argument
 function curves.saw(args)
-    args.a, args.r, args.p, args.b = args.a or 1, args.r or 1, args.p or 0, args.b or 0
-    function f(pos)
+    args = init_args(args)
+    local function f(pos)
         pos = calc_pos(1 - pos, args.r, args.p)
         return amp_bias(pos, args.a, args.b)
     end
@@ -163,11 +173,12 @@ end
 -- @tparam number|function args.b bias, added at final stage of calculation, like add in SuperCollider, defaults to 0
 -- @treturn function a function that calculates y values of the curve given a 0-1 phase argument
 function curves.tri(args)
-    args.s, args.a, args.r = args.s or 0.5, args.a or 1, args.r or 1
-    args.p, args.b = args.p or 0, args.b or 0
-    function f(pos)
+    args = init_args(args)
+    args.s = args.s or 0.5
+    local function f(pos)
         pos = calc_pos(pos, args.r, args.p)
         if callable(args.s) then args.s = args.s(pos) end
+        local value
         if pos < args.s then
             value = pos * 1 / args.s
         else
@@ -186,8 +197,8 @@ end
 -- @tparam number|function args.b bias, added at final stage of calculation, like add in SuperCollider, defaults to 0
 -- @treturn function a function that calculates y values of the curve given a 0-1 phase argument
 function curves.sine(args)
-    args.a, args.r, args.p, args.b = args.a or 1, args.r or 1, args.p or 0, args.b or 0
-    function f(pos)
+    args = init_args(args)
+    local function f(pos)
         pos = calc_pos(pos, args.r, args.p)
         return amp_bias((math.sin(pos2rad(pos)) * 0.5) + 0.5, args.a, args.b, pos)
     end
@@ -203,9 +214,9 @@ end
 -- @tparam number|function args.b bias, added at final stage of calculation, like add in SuperCollider, defaults to 0
 -- @treturn function a function that calculates y values of the curve given a 0-1 phase argument
 function curves.pulse(args)
-    args.w, args.a, args.r = args.w or 0.5, args.a or 1, args.r or 1
-    args.p, args.b = args.p or 0, args.b or 0
-    function f(pos)
+    args = init_args(args)
+    args.w = args.w or 0.5
+    local function f(pos)
         pos = calc_pos(pos, args.r, args.p)
         if callable(args.w) then args.w = args.w(pos) end
         if pos < args.w then
@@ -226,9 +237,9 @@ end
 -- @tparam number|function args.b bias, added at final stage of calculation, like add in SuperCollider, defaults to 0
 -- @treturn function a function that calculates y values of the curve given a 0-1 phase argument
 function curves.ease_in(args)
-    args.e, args.a, args.r = args.e or 2, args.a or 1, args.r or 1
-    args.p, args.b = args.p or 0, args.b or 0
-    function f(pos)
+    args = init_args(args)
+    args.e = args.e or 2
+    local function f(pos)
         pos = calc_pos(pos, args.r, args.p)
         if callable(args.e) then args.e = args.e(pos) end
         return amp_bias(pos ^ args.e, args.a, args.b, pos)
@@ -245,9 +256,9 @@ end
 -- @tparam number|function args.b bias, added at final stage of calculation, like add in SuperCollider, defaults to 0
 -- @treturn function a function that calculates y values of the curve given a 0-1 phase argument
 function curves.ease_out(args)
-    args.e, args.a, args.r = args.e or 3, args.a or 1, args.r or 1
-    args.p, args.b = args.p or 0, args.b or 0
-    function f(pos)
+    args = init_args(args)
+    args.e = args.e or 3
+    local function f(pos)
         pos = calc_pos(pos, args.r, args.p)
         if callable(args.e) then args.e = args.e(pos) end
         return amp_bias(((pos - 1) ^ args.e) + 1, args.a, args.b, pos)
@@ -264,11 +275,11 @@ end
 -- @tparam number|function args.b bias, added at final stage of calculation, like add in SuperCollider, defaults to 0
 -- @treturn function a function that calculates y values of the curve given a 0-1 phase argument
 function curves.ease_in_out(args)
-    args.e, args.a, args.r = args.e or 3, args.a or 1, args.r or 1
-    args.p, args.b = args.p or 0, args.b or 0
-    function f(pos)
+    args = init_args(args)
+    args.e = args.e or 3
+    local function f(pos)
         pos = calc_pos(pos, args.r, args.p)
-        value = pos * 2
+        local value = pos * 2
         if callable(args.e) then args.e = args.e(pos) end
         if value < 1 then
             return amp_bias(0.5 * (value ^ args.e), args.a, args.b, pos)
@@ -288,11 +299,11 @@ end
 -- @tparam number|function args.b bias, added at final stage of calculation, like add in SuperCollider, defaults to 0
 -- @treturn function a function that calculates y values of the curve given a 0-1 phase argument
 function curves.ease_out_in(args)
-    args.e, args.a, args.r = args.e or 3, args.a or 1, args.r or 1
-    args.p, args.b = args.p or 0, args.b or 0
-    function f(pos)
+    args = init_args(args)
+    args.e = args.e or 3
+    local function f(pos)
         pos = calc_pos(pos, args.r, args.p)
-        value = (pos * 2) - 1
+        local value = (pos * 2) - 1
         if callable(args.e) then args.e = args.e(pos) end
         if value < 2 then
             return amp_bias(0.5 * ((value ^ args.e) + 0.5), args.a, args.b, pos)
@@ -327,8 +338,8 @@ end
 -- @tparam table yvalues array of y values in time order, will be normalized to 0-1
 -- @treturn function a function that calculates y values of the curve given a 0-1 phase argument
 function curves.timeseries(yvalues)
-    yvalues = normalize(yvalues)
-    function f(pos)
+    yvalues = curves.normalize(yvalues)
+    local function f(pos)
         local indexf = pos * (#yvalues - 1)
         pos = indexf % 1.0
         indexf = indexf + 1
@@ -343,9 +354,9 @@ end
 -- @tparam[opt] function map_func optional function to be applied to each sample
 -- @treturn table a table of length num_samples
 function curves.to_table(f, num_samples, map_func)
-    samples = {}
+    local samples = {}
     for i = 1, num_samples do
-        sample = f((i-1)/num_samples)
+        local sample = f((i-1)/num_samples)
         if map_func then
             sample = map_func(sample)
         end
@@ -358,8 +369,8 @@ end
 -- @tparam function f a function returned from one of the curve generators
 -- @treturn Graph a Graph object, call :redraw() on the return value in your script's redraw()
 function curves.plot(f)
-    point_vals = to_table(f, 128)
-    signal_graph = Graph.new(0, 127, "lin", 0, 127/128, "lin", "line_and_point",
+    local point_vals = curves.to_table(f, 128)
+    local signal_graph = Graph.new(0, 127, "lin", 0, 127/128, "lin", "line_and_point",
                              false, false)
     signal_graph:set_position_and_size(0, 0, 128, 64)
     for i = 1, 128 do signal_graph:add_point(i, point_vals[i]) end

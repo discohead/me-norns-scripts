@@ -1,5 +1,16 @@
+--- Cross Rhythm Generator.
+-- Combine 2 (or 3) CR, ER, NR, ZR... or XR's!
 local XR = {AND='and', OR='or', XOR='xor', NOR='nor', NAND='nand', XNOR='xnor'}
 
+--- Create a new Cross Rhythm Generator.
+-- @param r1 a CR, ER, NR, ZR, XR or any function that returns a boolean when called
+-- @param r2 a CR, ER, NR, ZR, XR or any function that returns a boolean when called
+-- @param[opt] r3 this determines r1 and r2 will be combined, there are several options: (default 0.5)
+-- 'string' - one the 6 logic gates, XR.AND, XR.OR, XR.XOR, XR.NOR, XR.NAND, XR.XNOR
+-- 'number' - probably, between 0.0 and 1.0, 0.0 = 100% r1, 1.0 = 100% r2, 0.5 = 50/50, etc.
+-- 'function' - a user defined function that expects r1 and r2 as parameters and returns a boolean
+-- '*R' - a 3rd CR, ER, etc... that toggles the output between r1 and r2
+-- @treturn table
 function XR.new(r1, r2, r3)
     local xr = {
         r1 = r1,
@@ -12,6 +23,14 @@ function XR.new(r1, r2, r3)
     return xr
 end
 
+--- Get the next step from the Cross Rhythm Generator.
+-- Optionally override r3 from constructor.
+-- @param[opt] r3 this determines r1 and r2 will be combined, there are several options: (default self.r3)
+-- 'string' - one the 6 logic gates, XR.AND, XR.OR, XR.XOR, XR.NOR, XR.NAND, XR.XNOR
+-- 'number' - probably, between 0.0 and 1.0, 0.0 = 100% r1, 1.0 = 100% r2, 0.5 = 50/50, etc.
+-- 'function' - a user defined function that expects r1 and r2 as parameters and returns a boolean
+-- '*R' - a 3rd CR, ER, etc... that toggles the output between r1 and r2
+-- @treturn boolean
 function XR.next(self, r3)
     local r3_type = self.r3_type
     if r3 then
@@ -63,6 +82,7 @@ function XR.next(self, r3)
     return chosen_step
 end
 
+--- Reset all rythm generators to their first step.
 function XR.reset(self)
     self.r1.ix = 1
     self.r2.ix = 1
@@ -71,12 +91,19 @@ function XR.reset(self)
     end
 end
 
+--- Use this to update r3 at runtime, so the type can be automatically memoized.
+-- @param r3 this determines r1 and r2 will be combined, there are several options:
+-- 'string' - one the 6 logic gates, XR.AND, XR.OR, XR.XOR, XR.NOR, XR.NAND, XR.XNOR
+-- 'number' - probably, between 0.0 and 1.0, 0.0 = 100% r1, 1.0 = 100% r2, 0.5 = 50/50, etc.
+-- 'function' - a user defined function that expects r1 and r2 as parameters and returns a boolean
+-- '*R' - a 3rd CR, ER, etc... that toggles the output between r1 and r2
 function XR.set_r3(self, r3)
     self.r3_type = type(r3)
     self.r3 = r3
 end
 
 --- Helper to print the pattern to the console.
+-- @tparam number num_steps the number of steps to print
 function XR.print(self, num_steps)
     local r1_ix = self.r1.ix
     local r2_ix = self.r2.ix
