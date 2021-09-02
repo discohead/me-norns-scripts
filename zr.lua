@@ -267,7 +267,6 @@ function ZR.print(self)
     self:reset()
     local length = #ZR.banks[self.bank][self.child]
     local pattern = {}
-    -- TODO: Get the right length for this for loop
     for step=1, length do
         table.insert(pattern, self())
     end
