@@ -257,6 +257,16 @@ function ZR.next(self, args)
     return pattern[offset_ix] == 1 and true or false
 end
 
+-- Get the next step but then decrement the index back.
+function ZR.peek(self, args)
+    local step = self:next(args)
+    self.ix = self.ix - 1
+    if self.ix < 1 then
+        self.ix = 1
+    end
+    return step
+end
+
 --- Reset the pattern to the first step.
 function ZR.reset(self)
     self.ix = 1

@@ -84,10 +84,10 @@ end
 
 --- Reset all rythm generators to their first step.
 function XR.reset(self)
-    self.r1.ix = 1
-    self.r2.ix = 1
+    self.r1:reset()
+    self.r2:reset()
     if self.r3_type == 'table' then
-        self.r3.ix = 1
+        self.r3:reset()
     end
 end
 
@@ -105,22 +105,12 @@ end
 --- Helper to print the pattern to the console.
 -- @tparam number num_steps the number of steps to print
 function XR.print(self, num_steps)
-    local r1_ix = self.r1.ix
-    local r2_ix = self.r2.ix
-    local r3_ix
-    if self.r3_type == 'table' then
-        r3_ix = self.r3.ix
-    end
-    XR.reset(self)
+    self:reset()
     local pattern = {}
     for step=1, num_steps do
         table.insert(pattern, self())
     end
-    self.r1.ix = r1_ix
-    self.r2.ix = r2_ix
-    if r3_ix then
-        self.r3.ix = r3_ix
-    end
+    self:reset()
     tab.print(pattern)
 end
 

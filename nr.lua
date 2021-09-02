@@ -113,6 +113,15 @@ function NR.next(self, args)
     return bit_status == 1 and true or false
 end
 
+function NR.peek(self, args)
+    local step = self:next()
+    self.ix = self.ix - 1
+    if self.ix < 1 then
+        self.ix = 1
+    end
+    return step
+end
+
 --- Reset the pattern to the first step.
 function NR.reset(self)
     self.ix = 1
@@ -120,13 +129,12 @@ end
 
 --- Helper to print the pattern to the console.
 function NR.print(self)
-    local current_ix = self.ix
-    self.ix = 1
+    self:reset()
     local pattern = {}
     for step=1, 16 do
         table.insert(pattern, self())
     end
-    self.ix = current_ix
+    self:reset()
     tab.print(pattern)
 end
 

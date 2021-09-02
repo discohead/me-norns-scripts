@@ -1,8 +1,15 @@
 --- "Clock" Rhythm Generator.
 local CR = {}
 
---- is v a function?
-local function callable(v) return (type(v) == 'function') and true or false end
+--- is v a table that is (hopefully) callable or a function?
+-- we could check the metatable for __call but doesn't seem necessary
+local function callable(v)
+    local v_type = type(v)
+    if v_type == 'table' or v_type == 'function' then
+        return true
+    end
+    return false
+end
 
 --- Create a new Clock Rhythm generator.
 -- @tparam[opt] number divisor return true every divisor times called, default: 1
@@ -70,18 +77,26 @@ end
 --- Rest the clock count to 0.
 function CR.reset(self)
     self.clocks = 0
+    if type(self.polarity) == 'table' then
+        self.polarity:reset()
+    end
+    if type(self.flip) == 'table' then
+        self.flip:reset()
+    end
+    if type(self.pre_flip) == 'table' then
+        self.pre_flip:reset()
+    end
 end
 
 --- Helper to print the pattern to the console.
 -- @tparam number num_steps number of steps to print
 function CR.print(self, num_steps)
-    local current_clocks = self.clocks
-    self.clocks = 0
+    self:reset()
     local pattern = {}
     for step=1, num_steps do
         table.insert(pattern, self())
     end
-    self.clocks = current_clocks
+    self:reset()
     tab.print(pattern)
 end
 

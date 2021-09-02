@@ -69,6 +69,19 @@ function ER.next(self, args)
     return step
  end
 
+ --- Get the next step, but decrement the index back
+ -- and make sure the pattern is restored.
+ function ER.peek(self, args)
+    local p = self.pattern
+    local step = self:next(args)
+    self.pattern = p
+    self.ix = self.ix - 1
+    if self.ix < 1 then
+        self.ix = 1
+    end
+    return step
+ end
+
  --- Reset the pattern to the first step.
 function ER.reset(self)
     self.ix = 1
@@ -76,13 +89,12 @@ end
 
 --- Helper to print the pattern to the console.
 function ER.print(self)
-    local current_ix = self.ix
-    self.ix = 1
+    self:reset()
     local pattern = {}
     for step=1, self.steps do
         table.insert(pattern, self())
     end
-    self.ix = current_ix
+    self:reset()
     tab.print(pattern)
 end
 
