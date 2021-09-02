@@ -89,8 +89,8 @@ end
 -- @treturn boolean
 function NR.next(self, args)
     args = args or {}
-    prime, mask = args.prime or self.prime, args.mask or self.mask
-    factor = args.factor or self.factor
+    local prime, mask = args.prime or self.prime, args.mask or self.mask
+    local factor = args.factor or self.factor
     prime = prime % 33
     if prime < 1 then prime = 32 + prime end
     local rhythm = NR.primes[prime]
@@ -113,8 +113,9 @@ function NR.next(self, args)
     return bit_status == 1 and true or false
 end
 
+--- Get the next step but then decrement the index back.
 function NR.peek(self, args)
-    local step = self:next()
+    local step = self:next(args)
     self.ix = self.ix - 1
     if self.ix < 1 then
         self.ix = 1
