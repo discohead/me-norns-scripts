@@ -150,13 +150,15 @@ end
 function S.do_step(act)
     local s = act.up
     local newix
-    if s.random then
+    if s.set_ix then
+        -- if .set_ix is set, it will be used.
+        newix = wrap_index(s, s.set_ix)
+    elseif s.random then
         -- if .random is true, use a random index rather than incrementing by s.n
         newix = math.random(s.length)
-        print('new random ix = '..newix)
     else
-        -- if .set_ix is set, it will be used, rather than incrementing by s.n
-        newix = wrap_index(s, s.set_ix or s.ix + turtle(nval(s.n)))
+        -- increment by s.n
+        newix = wrap_index(s, s.ix + turtle(nval(s.n)))
     end
     local retval, exec = turtle(s.data[newix])
     if exec ~= 'again' then s.ix = newix; s.set_ix = nil end

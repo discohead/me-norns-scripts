@@ -9,6 +9,8 @@ local L = {}
 -- ex: l { {0, 0, curves.ramp()}, {16, 100, curves.ease_in()}, {32, 0, curves.ease_out()}}}
 -- see the curves library for more info
 -- @tparam[opt] boolean loop wether or not the lane should loop, default: false
+-- @tparam[opt] function callback a function to be called at the start of each breakpoint
+-- the function will be called with 2 parameters, the breakpoint start time and the Lanes object itself
 -- @treturn table new Lane
 function L.new(t, loop, callback)
     -- wrap a table in a lane with defaults
