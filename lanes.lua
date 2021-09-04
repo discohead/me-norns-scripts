@@ -10,7 +10,7 @@ local L = {}
 -- see the curves library for more info
 -- @tparam[opt] boolean loop wether or not the lane should loop, default: false
 -- @tparam[opt] function callback a function to be called at the start of each breakpoint
--- the function will be called with 2 parameters, the breakpoint start time and the Lanes object itself
+-- the function will be called with 2 parameters, the breakpoint that triggered it and the Lanes object itself
 -- @treturn table new Lane
 function L.new(t, loop, callback)
     -- wrap a table in a lane with defaults
@@ -70,7 +70,7 @@ function L.interpolate(self, at_beats)
         next_ix = (self.ix % #self.data) + 1
         target_time, target_level = table.unpack(self.data[next_ix])
         if self.callback then
-            self.callback(start_time, self)
+            self.callback(self.data[self.ix], self)
         end
     end
 
