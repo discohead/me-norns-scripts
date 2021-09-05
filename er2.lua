@@ -87,14 +87,20 @@ function ER.reset(self)
     self.ix = 1
 end
 
---- Helper to print the pattern to the console.
-function ER.print(self)
+--- Helper to convert the pattern to a table.
+function ER.to_table(self, num_steps)
     self:reset()
     local pattern = {}
-    for step=1, self.steps do
+    for step=1, num_steps do
         table.insert(pattern, self())
     end
     self:reset()
+    return pattern
+end
+
+--- Helper to print the pattern to the console.
+function ER.print(self)
+    local pattern = self:to_table(self.steps)
     tab.print(pattern)
 end
 
@@ -102,17 +108,9 @@ ER.__call = function(self, ...)
     return (self == ER) and ER.new(...) or ER.next(self, ...)
 end
 
-ER.metaix = {reset=ER.reset, print=ER.print}
+ER.metaix = {reset=ER.reset, to_table=ER.to_table, print=ER.print}
 ER.__index = function(self, ix)
     return ER.metaix[ix]
-end
-
-ER.__newindex = function(self, ix, v)
-    if ix == 'pulses' or ix == 'steps' or ix == 'rotation' then
-        rawset(self,ix,v)
-    end
-    local pattern = gen(self.pulses, self.steps, self.rotation)
-    rawset(self, 'pattern', pattern)
 end
 
 setmetatable(ER, ER)

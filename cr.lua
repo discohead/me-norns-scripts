@@ -90,13 +90,20 @@ end
 
 --- Helper to print the pattern to the console.
 -- @tparam number num_steps number of steps to print
-function CR.print(self, num_steps)
+function CR.to_table(self, num_steps)
     self:reset()
     local pattern = {}
     for step=1, num_steps do
         table.insert(pattern, self())
     end
     self:reset()
+    return pattern
+end
+
+--- Helper to print the pattern to the console.
+-- @tparam number num_steps number of steps to print
+function CR.print(self, num_steps)
+    local pattern = self:to_table(num_steps)
     tab.print(pattern)
 end
 
@@ -104,7 +111,7 @@ CR.__call = function(self, ...)
     return (self == CR) and CR.new(...) or CR.next(self, ...)
 end
 
-CR.metaix = {reset=CR.reset, print=CR.print}
+CR.metaix = {reset=CR.reset, to_table=CR.to_table, print=CR.print}
 
 CR.__index = function(self, ix)
     return CR.metaix[ix]

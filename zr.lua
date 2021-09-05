@@ -262,15 +262,21 @@ function ZR.reset(self)
     self.ix = 1
 end
 
---- Helper to print the pattern to the console.
-function ZR.print(self)
+--- Helper to convert to a pattern to a table.
+function ZR.to_table(self, num_steps)
     self:reset()
-    local length = #ZR.banks[self.bank][self.child]
+    num_steps = num_steps or #ZR.banks[self.bank][self.child]
     local pattern = {}
-    for step=1, length do
+    for step=1, num_steps do
         table.insert(pattern, self())
     end
     self:reset()
+    return pattern
+end
+
+--- Helper to print the pattern to the console.
+function ZR.print(self)
+    local pattern = self:to_table(#ZR.banks[self.bank][self.child])
     tab.print(pattern)
 end
 
@@ -278,16 +284,10 @@ ZR.__call = function(self, ...)
     return (self == ZR) and ZR.new(...) or ZR.next(self, ...)
 end
 
-ZR.metaix = {reset=ZR.reset, print=ZR.print}
+ZR.metaix = {reset=ZR.reset, to_table=ZR.to_table, print=ZR.print}
 
 ZR.__index = function(self, ix)
     return ZR.metaix[ix]
-end
-
-ZR.__newindex = function(self, ix, v)
-    if ix == 'bank' or ix == 'child' or ix == 'offset' then
-        rawset(self,ix,v)
-    end
 end
 
 setmetatable(ZR, ZR)

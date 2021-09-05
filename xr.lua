@@ -102,15 +102,22 @@ function XR.set_r3(self, r3)
     self.r3 = r3
 end
 
---- Helper to print the pattern to the console.
+--- Helper to convert pattern to a table.
 -- @tparam number num_steps the number of steps to print
-function XR.print(self, num_steps)
+function XR.to_table(self, num_steps)
     self:reset()
     local pattern = {}
     for step=1, num_steps do
         table.insert(pattern, self())
     end
     self:reset()
+    return pattern
+end
+
+--- Helper to print the pattern to the console.
+-- @tparam number num_steps the number of steps to print
+function XR.print(self, num_steps)
+    local pattern = self:to_table(num_steps)
     tab.print(pattern)
 end
 
@@ -118,7 +125,7 @@ XR.__call = function(self, ...)
     return (self == XR) and XR.new(...) or XR.next(self, ...)
 end
 
-XR.metaix = {reset=XR.reset, print=XR.print, set_r3=XR.set_r3}
+XR.metaix = {reset=XR.reset, to_table=XR.to_table, print=XR.print, set_r3=XR.set_r3}
 
 XR.__index = function(self, ix)
     return XR.metaix[ix]

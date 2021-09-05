@@ -128,14 +128,20 @@ function NR.reset(self)
     self.ix = 1
 end
 
---- Helper to print the pattern to the console.
-function NR.print(self)
+--- Helper to convert pattern to a table.
+function NR.to_table(self, num_steps)
     self:reset()
     local pattern = {}
-    for step=1, 16 do
+    for step=1, num_steps do
         table.insert(pattern, self())
     end
     self:reset()
+    return pattern
+end
+
+--- Helper to print the pattern to the console.
+function NR.print(self)
+    local pattern = self:to_table(16)
     tab.print(pattern)
 end
 
@@ -143,15 +149,9 @@ NR.__call = function(self, ...)
     return (self == NR) and NR.new(...) or NR.next(self, ...)
 end
 
-NR.metaix = {reset=NR.reset, print=NR.print}
+NR.metaix = {reset=NR.reset, to_table=NR.to_table, print=NR.print}
 NR.__index = function(self, ix)
     return NR.metaix[ix]
-end
-
-NR.__newindex = function(self, ix, v)
-    if ix == 'prime' or ix == 'mask' or ix == 'factor' then
-        rawset(self,ix,v)
-    end
 end
 
 setmetatable(NR, NR)
