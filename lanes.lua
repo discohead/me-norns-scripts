@@ -95,6 +95,10 @@ end
 
 L.metaix = {settable = L.setdata, setstartbearts = L.setstartbeats}
 
+L.__index = function(self, ix)
+    return L.metaix[ix]
+end
+
 setmetatable(L, L)
 
 return L
