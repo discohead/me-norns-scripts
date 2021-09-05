@@ -14,7 +14,7 @@ local L = {}
 -- @treturn table new Lane
 function L.new(t, loop, callback)
     -- wrap a table in a lane with defaults
-    local l = {data = t, startbeats = clock.get_beats(), loop = loop, ix=1, callback=callback}
+    local l = {data = t, loop = loop, ix=1, callback=callback}
     setmetatable(l, L)
     return l
 end
@@ -60,7 +60,9 @@ end
 -- @tparam [opt] number at_beats point in time in beats to interpolate, default: clock.get_beats()
 -- @treturn number value at specified beats
 function L.interpolate(self, at_beats)
-    at_beats = at_beats or clock.get_beats() - self.startbeats
+    at_beats = at_beats or clock.get_beats()
+    self.startbeats = self.startbeats or at_beats
+    at_beats = at_beats - self.startbeats
     local start_time, start_level, start_curve = table.unpack(self.data[self.ix])
     local next_ix = (self.ix % #self.data) + 1
     local target_time, target_level, target_curve = table.unpack(self.data[next_ix])
