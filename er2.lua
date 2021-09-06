@@ -113,6 +113,10 @@ ER.__index = function(self, ix)
     return ER.metaix[ix]
 end
 
+ER.__tostring = function(self)
+    return 'er2('..self.pulses..', '..self.steps..', '..self.rotation..')'
+end
+
 setmetatable(ER, ER)
 
 return ER

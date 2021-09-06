@@ -54,6 +54,18 @@ NR.primes = {
 }
 
 
+--- is v a table that is (hopefully) callable or a function?
+-- we could check the metatable for __call but doesn't seem necessary
+local function callable(v)
+    local v_type = type(v)
+    if v_type == 'table' or v_type == 'function' then
+        return true
+    end
+    return false
+end
+
+local function is_table(t) return type(t) == 'table' end
+
 --- Create a new Numeric Repetitor
 -- @tparam[opt] number prime The prime rhythm index 1 - 32, default: 1
 -- @tparam[opt] number mask any 1s in the prime flip to 0 if the same bit in the mask is a 0, default: 0
@@ -91,6 +103,9 @@ function NR.next(self, args)
     args = args or {}
     local prime, mask = args.prime or self.prime, args.mask or self.mask
     local factor = args.factor or self.factor
+    if callable(prime) then prime = math.floor(prime()) end
+    if callable(mask) then mask = math.floor(mask()) end
+    if callable(factor) then factor = math.floor(factor()) end
     prime = prime % 33
     if prime < 1 then prime = 32 + prime end
     local rhythm = NR.primes[prime]
@@ -126,6 +141,9 @@ end
 --- Reset the pattern to the first step.
 function NR.reset(self)
     self.ix = 1
+    if is_table(self.prime) then self.prime:reset() end
+    if is_table(self.mask) then self.mask:reset() end
+    if is_table(self.factor) then self.factor:reset() end
 end
 
 --- Helper to convert pattern to a table.

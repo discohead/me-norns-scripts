@@ -136,10 +136,14 @@ end
 --- control flow execution
 
 function S.next(self)
-    local act = self.action
-    if act.action then
-        return S.do_ctrl(act)
-    else return S.do_step(act) end
+    if self.length > 0 then
+        local act = self.action
+        if act.action then
+            return S.do_ctrl(act)
+        else return S.do_step(act) end
+    else
+        return nil
+    end
 end
 
 function S.select(self, ix)

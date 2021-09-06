@@ -18,9 +18,12 @@ function mc:note(channel,velocity, duration, note)
         channel, velocity, duration, note = table.unpack(channel)
     end
     channel, velocity, duration = channel or 1, velocity or 100, duration or 0.0625
-    note = note or channel - 1
-    mc.device:note_on(note, velocity, channel)
-    clock.run(note_off, channel, note, duration)
+    local trigger_note = channel - 1
+    if note then
+        self:track_note(channel, note)
+    end
+    mc.device:note_on(trigger_note, velocity, channel)
+    clock.run(note_off, channel, trigger_note, duration)
 end
 
 function mc:level(channel, value)

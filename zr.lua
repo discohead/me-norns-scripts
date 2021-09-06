@@ -230,6 +230,18 @@ function ZR.new(bank, child, offset)
     return zr
 end
 
+--- is v a table that is (hopefully) callable or a function?
+-- we could check the metatable for __call but doesn't seem necessary
+local function callable(v)
+    local v_type = type(v)
+    if v_type == 'table' or v_type == 'function' then
+        return true
+    end
+    return false
+end
+
+local function is_table(t) return type(t) == 'table' end
+
 --- Get the next step. Optionally override the world, bank, child, offset from construction.
 -- @tparam[opt] table args 'bank', 'child', 'offset' (all optional)
 -- @tparam[opt] string args.bank, see ZR.new_world, ZR.old_world and ZR.banks default: self.bank
@@ -240,6 +252,9 @@ function ZR.next(self, args)
     args = args or {}
     local bank = args.bank or self.bank
     local child, offset = args.child or self.child, args.offset or self.offset
+    if callable(bank) then bank = math.floor(bank()) end
+    if callable(child) then child = math.floor(child()) end
+    if callable(offset) then offset = math.floor(offset()) end
     local pattern = ZR.banks[bank][child]
     local length = #pattern
     local offset_ix = (((self.ix + offset) - 1) % length) + 1
@@ -260,6 +275,9 @@ end
 --- Reset the pattern to the first step.
 function ZR.reset(self)
     self.ix = 1
+    if is_table(self.bank) then self.bank:reset() end
+    if is_table(self.child) then self.child:reset() end
+    if is_table(self.offset) then self.offset:reset() end
 end
 
 --- Helper to convert to a pattern to a table.
