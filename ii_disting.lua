@@ -113,6 +113,17 @@ function disting:note(midi_note, velocity, duration)
     clock.run(note_off, midi_note, duration)
 end
 
+--- Polyphonic (note_on + note_off) with optional velocity and duration.
+-- @tparam table midi_notes table of midi_note tables passed to :note()
+function disting:chord(midi_notes)
+    tab.print(midi_notes)
+    for _, midi_note in ipairs(midi_notes) do
+        print(midi_note)
+        self:note(midi_note)
+    end
+end
+
+
 -- Set the pitch of note with note_id
 -- Note: note_id is just a reference to a note
 -- @tparam number note_id 0 - 127
@@ -304,6 +315,8 @@ disting.multisample.OUTPUT_MODES = {
 -- @tparam[opt] number velocity min: 0, max: 128, default: 100
 -- @tparam[opt] number duration note_on time in seconds, default: 0.0625
 disting.multisample.note = disting.note
+
+disting.multisample.chord = disting.chord
 
 -- Set the pitch of note with note_id
 -- Note: note_id is just a reference to a note
