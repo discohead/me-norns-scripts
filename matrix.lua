@@ -124,12 +124,12 @@ function matrix:A_ratio(volts)
     er301.cv(3, volts)
 end
 
-function matrix:A_track(volts)
-    er301.cv(2, volts)
+function matrix:A_track(state)
+    er301.tr(2, state)
 end
 
-function matrix:B_track(volts)
-    er301.cv(3, volts)
+function matrix:B_track(state)
+    er301.tr(3, state)
 end
 
 function matrix:A_to_F(volts)
@@ -172,20 +172,20 @@ function matrix:B_to_D(volts)
     er301.cv(17, volts)
 end
 
-function matrix:E_track(volts)
-    er301.cv(6, volts)
+function matrix:E_track(state)
+    er301.tr(6, state)
 end
 
-function matrix:F_track(volts)
-    er301.cv(7, volts)
+function matrix:F_track(state)
+    er301.tr(7, state)
 end
 
-function matrix:C_track(volts)
-    er301.cv(4, volts)
+function matrix:C_track(state)
+    er301.tr(4, state)
 end
 
-function matrix:D_track(volts)
-    er301.cv(5, volts)
+function matrix:D_track(state)
+    er301.tr(5, state)
 end
 
 function matrix:D_to_D(volts)
@@ -210,10 +210,6 @@ end
 
 function matrix:B_out(volts)
     er301.cv(11, volts)
-end
-
-function matrix:name(volts)
-    er301.cv(matrix, volts)
 end
 
 function matrix:C_out(volts)
