@@ -983,41 +983,41 @@ end
 
 
 local note_makers = {
-    multi = function(inst_table, track)
+    multi = function(channel, _)
         return {
-            inst_table[track].note and inst_table[track].note() or nil,
-            inst_table[track].velocity and inst_table[track].velocity() or nil,
-            inst_table[track].duration and inst_table[track].duration() or nil,
+            channel.note and channel.note() or nil,
+            channel.velocity and channel.velocity() or nil,
+            channel.duration and channel.duration() or nil,
         }
     end,
-    mc = function(inst_table, track)
-        return {
-            track,
-            inst_table[track].velocity and inst_table[track].velocity() or nil,
-            inst_table[track].duration and inst_table[track].duration() or nil,
-            inst_table[track].note and inst_table[track].note() or nil,
-        }
-    end,
-    ms = function(inst_table, track)
+    mc = function(channel, track)
         return {
             track,
-            inst_table[track].velocity and inst_table[track].velocity() or nil,
-            inst_table[track].duration and inst_table[track].duration() or nil,
-            inst_table[track].note and inst_table[track].note() or nil,
+            channel.velocity and channel.velocity() or nil,
+            channel.duration and channel.duration() or nil,
+            channel.note and channel.note() or nil,
         }
     end,
-    fh2 =  function(inst_table, track)
+    ms = function(channel, track)
+        return {
+            track,
+            channel.velocity and channel.velocity() or nil,
+            channel.duration and channel.duration() or nil,
+            channel.note and channel.note() or nil,
+        }
+    end,
+    fh2 =  function(channel, track)
         return  {
             track,
-            inst_table[track].note and inst_table[track].note() or nil,
-            inst_table[track].velocity and inst_table[track].velocity() or nil,
-            inst_table[track].duration and inst_table[track].duration() or nil,
+            channel.note and channel.note() or nil,
+            channel.velocity and channel.velocity() or nil,
+            channel.duration and channel.duration() or nil,
         }
     end,
 }
-local function make_note_table(inst_table, track)
-    local note_maker = note_makers[inst_table.name]
-    return note_maker(inst_table, track)
+local function make_note_table(name, channel, track)
+    local note_maker = note_makers[name]
+    return note_maker(channel, track)
 end
 
 function step(name, device, channel, track)
@@ -1038,7 +1038,7 @@ function step(name, device, channel, track)
                     device[field](device, track, math.floor(v))
                 end
             end
-            device:note(make_note_table(inst_table, track))
+            device:note(make_note_table(name, channel, track))
         end
     end
 end
