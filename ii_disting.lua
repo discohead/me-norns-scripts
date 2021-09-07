@@ -104,11 +104,7 @@ end
 -- @tparam[opt] number duration note_on time in seconds, default: 0.0625
 function disting:note(midi_note, velocity, duration)
     if type(midi_note) == 'table' then
-        tab.print(midi_note)
         midi_note, velocity, duration = table.unpack(midi_note)
-        if midi_note ~= nil then
-            print('midi_note = '..midi_note)
-        end
     end
     midi_note, velocity, duration = midi_note or 48, velocity or 100, duration or 0.0625
     local zero_v_note = disting.zero_volt_note or 48
