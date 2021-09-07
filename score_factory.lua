@@ -1,6 +1,7 @@
-lua_instrument = require('ms')
-name = 'ms'
-num_channels = 6
+dex = require('ii_disting')
+lua_instrument = dex.multisample
+name = 'multi'
+num_channels = 8
 fields_to_modulate = {}
 default_fields = {'sync_rate', 'rhythm', 'velocity', 'duration'}
 
