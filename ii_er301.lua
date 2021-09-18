@@ -2,6 +2,10 @@ local er301 = {f0_freqs = {27.5}, f0_notes = {21}} -- defaults to ER-301 oscilla
 
 local math_log_2 = 0.69314718055995 -- math.log(2)
 
+
+-- Convert boolean to 1 or 0
+local function b2n(bool) return bool and 1 or 0 end
+
 --- Return a frequency's nearest MIDI note number.
 -- taken from MusicUtil
 -- @tparam float freq Frequency number in Hz.
@@ -12,8 +16,10 @@ end
 
 --- Set TR port to state (0/1).
 -- @tparam number port 1 - 100
--- @tparam number state 0 or 1
-function er301.tr(port, state) crow.ii.er301.tr(port, state) end
+-- @tparam bool state true or false
+function er301.tr(port, state)
+    crow.ii.er301.tr(port, b2n(state))
+end
 
 --- Toggle the TR port.
 -- @tparam number port 1 - 100
@@ -78,8 +84,9 @@ end
 --- Set CV port slew time in milliseconds.
 -- @tparam number port 1 - 100
 -- @tparam number milliseconds time in milliseconds
-function er301.slew(port, milliseconds) crow.ii.er301
-    .cv_slew(port, milliseconds) end
+function er301.slew(port, milliseconds) 
+    crow.ii.er301.cv_slew(port, milliseconds)
+end
 
 --- Set CV port to bipolar voltage, ignoring slew() time.
 -- @tparam number port 1 - 100
@@ -90,6 +97,14 @@ function er301.set_cv(port, volts) crow.ii.er301.cv_set(port, volts) end
 -- @tparam number port 1 - 100
 -- @tparam number volts min: -10, max: 10
 function er301.offset(port, volts) crow.ii.er301.cv_off(port, volts) end
+
+--- Reset all 100 CV & TR ports to 0.
+function er301.reset_all()
+    for port=1, 100 do
+        crow.ii.er301.cv_set(port, 0)
+        crow.ii.er301.tr(port, 0)
+    end
+end
 
 --- Helper to create a custom API for a voice on er301
 -- from a table of keys and port numbers

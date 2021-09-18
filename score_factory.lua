@@ -1,7 +1,6 @@
-dex = require('ii_disting')
-lua_instrument = dex.multisample
-name = 'multi'
-num_channels = 8
+lua_instrument = require('matrix')
+name = 'matrix'
+num_channels = 1
 fields_to_modulate = {}
 default_fields = {'sync_rate', 'rhythm', 'velocity', 'duration'}
 
@@ -78,6 +77,7 @@ local function make_score_table(name, num_channels, fields)
         end
         table_string = table_string..'},'
     end
+    table_string = table_string..'device = '..name..', name = "'..name..'",'
     table_string = table_string..'}'
     local filename = name..'_score_table.lua'
     save_code(table_string, filename)

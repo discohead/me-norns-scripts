@@ -54,6 +54,9 @@ end
 -- @tparam[opt] boolean|function args.pre_flip if true apply any polarity flip before polarity is applied to output, default: false
 -- @treturn boolean
 function CR.next(self, args)
+    if args then
+        print('args = '..args)
+    end
     args = args or {}
     args.divisor = args.divisor or self.divisor
     args.polarity = args.polarity or self.polarity

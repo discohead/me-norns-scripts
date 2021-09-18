@@ -212,18 +212,24 @@ end
 -- @tparam number|function args.r rate, number of periods in one phase cycle, defaults to 1
 -- @tparam number|function args.p phase, phase offset, defaults to 0
 -- @tparam number|function args.b bias, added at final stage of calculation, like add in SuperCollider, defaults to 0
+-- @tparam boolean return_bool return true if high, false if low
 -- @treturn function a function that calculates y values of the curve given a 0-1 phase argument
-function curves.pulse(args)
+function curves.pulse(args, return_bool)
     args = init_args(args)
     args.w = args.w or 0.5
     local function f(pos)
         pos = calc_pos(pos, args.r, args.p)
         if callable(args.w) then args.w = args.w(pos) end
+        local final
         if pos < args.w then
-            return amp_bias(0.0, args.a, args.b, pos)
+            final = amp_bias(0.0, args.a, args.b, pos)
         else
-            return amp_bias(1.0, args.a, args.b, pos)
+            final = amp_bias(1.0, args.a, args.b, pos)
         end
+        if return_bool then
+            return final == 1 and true or false
+        end
+        return final
     end
     return f
 end
